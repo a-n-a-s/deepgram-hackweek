@@ -1,77 +1,56 @@
-# Next.js Live Transcription Starter
+```markdown
+# Live Transcription with Next.js and Deepgram
 
-[![Discord](https://dcbadge.vercel.app/api/server/xWRaCDBtW4?style=flat)](https://discord.gg/xWRaCDBtW4)
+[![Next.js](https://img.shields.io/badge/Next.js-13.4+-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Deepgram](https://img.shields.io/badge/Deepgram-API-00C2A8)](https://deepgram.com/)
 
-The purpose of this demo is to showcase how you can build a NextJS speech to text app using [Deepgram](https://deepgram.com/).
+A real-time speech-to-text application using Deepgram's live transcription API.
 
-## Live Demo
-You can see the demo in action on Vercel: https://nextjs-live-transcription.vercel.app/
+## ✨ Features
+- Real-time audio transcription
+- WebSocket-based communication
+- React context API integration
+- Server-side API key management
 
-## Demo features
+## 🚀 Quick Start
 
-Capture streaming audio using [Deepgram Streaming Speech to Text](https://developers.deepgram.com/docs/getting-started-with-live-streaming-audio).
+### Prerequisites
+- Node.js 18+
+- npm 9+
+- Deepgram API key (free at [deepgram.com](https://console.deepgram.com/signup))
 
-## What is Deepgram?
+### Installation
 
-[Deepgram’s](https://deepgram.com/) voice AI platform provides APIs for speech-to-text, text-to-speech, and full speech-to-speech voice agents. Over 200,000+ developers use Deepgram to build voice AI products and features.
-
-## Sign-up to Deepgram
-
-Want to start building using this project? [Sign-up now for Deepgram and create an API key](https://console.deepgram.com/signup?jump=keys).
-
-## Quickstart
-
-### Manual
-
-Follow these steps to get started with this starter application.
-
-#### Clone the repository
-
-Go to GitHub and [clone the repository](https://github.com/deepgram-starters/nextjs-live-transcription).
-
-#### Install dependencies
-
-Install the project dependencies.
-
+1. **Clone the repository**
 ```bash
+git clone https://github.com/YOUR-USERNAME/nextjs-live-transcription.git
+ ```
+```
+
+2. Install dependencies
+```bash
+cd nextjs-live-transcription
 npm install
-```
+ ```
 
-#### Edit the config file
-
-Copy the code from `sample.env.local` and create a new file called `.env.local`.
-
-```bash
-DEEPGRAM_API_KEY=YOUR-DG-API-KEY
-```
-
-For `DEEPGRAM_API_KEY` paste in the key you generated in the [Deepgram console](https://console.deepgram.com/).
-
-#### Run the application
-
-Once running, you can [access the application in your browser](http://localhost:3000).
-
+3. Environment Setup
+   - Create .env.local file in root directory:
+   ```env
+   DEEPGRAM_API_KEY=your_api_key_here
+    ```
+### Running the Application
 ```bash
 npm run dev
-```
+ ```
 
-## Issue Reporting
+Open http://localhost:3000 in your browser.
 
-If you have found a bug or if you have a feature request, please report them at this repository issues section. Please do not report security vulnerabilities on the public GitHub issue tracker. The [Security Policy](./SECURITY.md) details the procedure for contacting Deepgram.
+## 🔧 Configuration Environment Variable Description DEEPGRAM_API_KEY
 
-
-## Getting Help
-
-We love to hear from you so if you have questions, comments or find a bug in the project, let us know! You can either:
-
-- [Open an issue in this repository](https://github.com/deepgram-starters/nextjs-live-transcription/issues)
-- [Join the Deepgram Github Discussions Community](https://github.com/orgs/deepgram/discussions)
-- [Join the Deepgram Discord Community](https://discord.gg/xWRaCDBtW4)
-
-## Author
-
-[Deepgram](https://deepgram.com)
-
-## License
-
-This project is licensed under the MIT license. See the [LICENSE](./LICENSE) file for more info.
+Your Deepgram API key (required)
+## 🤝 Contributing
+1. Fork the project
+2. Create your feature branch ( git checkout -b feature/AmazingFeature )
+3. Commit your changes ( git commit -m 'Add some AmazingFeature' )
+4. Push to the branch ( git push origin feature/AmazingFeature )
+5. Open a Pull Request
