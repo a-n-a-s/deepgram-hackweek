@@ -1,4 +1,4 @@
-```markdown
+
 # Live Transcription with Next.js and Deepgram
 
 [![Next.js](https://img.shields.io/badge/Next.js-13.4+-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -25,7 +25,7 @@ A real-time speech-to-text application using Deepgram's live transcription API.
 ```bash
 git clone https://github.com/YOUR-USERNAME/nextjs-live-transcription.git
  ```
-```
+
 
 2. Install dependencies
 ```bash
