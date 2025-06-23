@@ -15,14 +15,15 @@ import {
 import Visualizer from "./Visualizer";
 
 const App: () => JSX.Element = () => {
-  const [caption, setCaption] = useState<string | undefined>(
-    "Powered by Deepgram"
-  );
+  const [caption, setCaption] = useState<string | undefined>("Speaking?...");
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
   const { connection, connectToDeepgram, connectionState } = useDeepgram();
-  const { setupMicrophone, microphone, startMicrophone, microphoneState } =
+  const { setupMicrophone, microphone, startMicrophone, stopMicrophone, microphoneState } =
     useMicrophone();
   const captionTimeout = useRef<any>();
   const keepAliveInterval = useRef<any>();
+  const transcriptRef = useRef("");
 
   useEffect(() => {
     setupMicrophone();
@@ -42,6 +43,16 @@ const App: () => JSX.Element = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [microphoneState]);
 
+  const toggleListening = () => {
+    if (isListening) {
+      stopMicrophone();
+      setIsListening(false);
+    } else {
+      startMicrophone();
+      setIsListening(true);
+    }
+  };
+
   useEffect(() => {
     if (!microphone) return;
     if (!connection) return;
@@ -58,10 +69,17 @@ const App: () => JSX.Element = () => {
       const { is_final: isFinal, speech_final: speechFinal } = data;
       let thisCaption = data.channel.alternatives[0].transcript;
 
-      console.log("thisCaption", thisCaption);
       if (thisCaption !== "") {
-        console.log('thisCaption !== ""', thisCaption);
         setCaption(thisCaption);
+        
+        // Update transcript in real-time
+        if (isFinal) {
+          transcriptRef.current += " " + thisCaption;
+          setTranscript(transcriptRef.current);
+        } else {
+          // For interim results, show current transcript + the new text
+          setTranscript(transcriptRef.current + " " + thisCaption);
+        }
       }
 
       if (isFinal && speechFinal) {
@@ -77,17 +95,18 @@ const App: () => JSX.Element = () => {
       connection.addListener(LiveTranscriptionEvents.Transcript, onTranscript);
       microphone.addEventListener(MicrophoneEvents.DataAvailable, onData);
 
-      startMicrophone();
+      if (isListening) {
+        startMicrophone();
+      }
     }
 
     return () => {
-      // prettier-ignore
       connection.removeListener(LiveTranscriptionEvents.Transcript, onTranscript);
       microphone.removeEventListener(MicrophoneEvents.DataAvailable, onData);
       clearTimeout(captionTimeout.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectionState]);
+  }, [connectionState, isListening]);
 
   useEffect(() => {
     if (!connection) return;
@@ -111,17 +130,53 @@ const App: () => JSX.Element = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [microphoneState, connectionState]);
 
+  const clearTranscript = () => {
+    setTranscript("");
+    transcriptRef.current = "";
+  };
+
   return (
     <>
-      <div className="flex h-full antialiased">
+      <div className="flex h-full antialiased border-4 rounded-lg border-blue-600">
         <div className="flex flex-row h-full w-full overflow-x-hidden">
           <div className="flex flex-col flex-auto h-full">
-            {/* height 100% minus 8rem */}
-            <div className="relative w-full h-full">
+            {/* Controls section */}
+            <div className="flex justify-center items-center p-4 gap-4">
+              <button
+                onClick={toggleListening}
+                className={`px-6 py-2 rounded-full text-white font-medium ${
+                  isListening ? "bg-red-500" : "bg-green-500"
+                }`}
+              >
+                {isListening ? "Stop" : "Start"}
+              </button>
+              <button
+                onClick={clearTranscript}
+                className="px-6 py-2 rounded-full bg-red-500 text-white font-medium"
+              >
+                Clear
+              </button>
+            </div>
+
+            {/* Visualizer area */}
+            <div className="relative w-full h-[60vh]">
               {microphone && <Visualizer microphone={microphone} />}
-              <div className="absolute bottom-[8rem]  inset-x-0 max-w-4xl mx-auto text-center">
-                {caption && <span className="bg-black/70 p-8">{caption}</span>}
+              <div className="absolute bottom-[8rem] inset-x-0 max-w-4xl mx-auto text-center">
+                {caption && <span className="bg-gray-200 px-2 py-1 text-gray-700">{caption}</span>}
               </div>
+            </div>
+
+            {/* Transcript area */}
+            <div className="p-4 flex-1">
+              <textarea
+                value={transcript}
+                onChange={(e) => {
+                  setTranscript(e.target.value);
+                  transcriptRef.current = e.target.value;
+                }}
+                className="w-full bg-blue-200 text-black h-full p-4 border border-gray-300 rounded-lg resize-none placeholder:text-black"
+                placeholder="Your transcription will appear here..."
+              />
             </div>
           </div>
         </div>

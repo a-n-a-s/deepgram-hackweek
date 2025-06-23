@@ -6,6 +6,7 @@ import {
   useContext,
   useState,
   ReactNode,
+  useEffect,
 } from "react";
 
 interface MicrophoneContextType {
@@ -34,6 +35,7 @@ export enum MicrophoneState {
   Error = 4,
   Pausing = 5,
   Paused = 6,
+  Stopped = 7,
 }
 
 const MicrophoneContext = createContext<MicrophoneContextType | undefined>(
@@ -64,35 +66,73 @@ const MicrophoneContextProvider: React.FC<MicrophoneContextProviderProps> = ({
       });
 
       const microphone = new MediaRecorder(userMedia);
+      
+      // Add event listeners to track state changes
+      microphone.onstart = () => {
+        setMicrophoneState(MicrophoneState.Open);
+      };
+      
+      microphone.onpause = () => {
+        setMicrophoneState(MicrophoneState.Paused);
+      };
+      
+      microphone.onresume = () => {
+        setMicrophoneState(MicrophoneState.Open);
+      };
+      
+      microphone.onstop = () => {
+        setMicrophoneState(MicrophoneState.Stopped);
+      };
+      
+      microphone.onerror = (event) => {
+        console.error("MediaRecorder error:", event);
+        setMicrophoneState(MicrophoneState.Error);
+      };
 
       setMicrophoneState(MicrophoneState.Ready);
       setMicrophone(microphone);
     } catch (err: any) {
       console.error(err);
-
+      setMicrophoneState(MicrophoneState.Error);
       throw err;
     }
   };
 
   const stopMicrophone = useCallback(() => {
-    setMicrophoneState(MicrophoneState.Pausing);
+    if (!microphone) return;
 
-    if (microphone?.state === "recording") {
+    setMicrophoneState(MicrophoneState.Pausing);
+    
+    if (microphone.state === "recording") {
       microphone.pause();
-      setMicrophoneState(MicrophoneState.Paused);
+    } else if (microphone.state === "inactive") {
+      setMicrophoneState(MicrophoneState.Stopped);
     }
   }, [microphone]);
 
   const startMicrophone = useCallback(() => {
+    if (!microphone) return;
+
     setMicrophoneState(MicrophoneState.Opening);
 
-    if (microphone?.state === "paused") {
+    if (microphone.state === "paused") {
       microphone.resume();
-    } else {
-      microphone?.start(250);
+    } else if (microphone.state === "inactive") {
+      microphone.start(250);
     }
+    // If already recording, do nothing
+  }, [microphone]);
 
-    setMicrophoneState(MicrophoneState.Open);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (microphone) {
+        if (microphone.state === "recording") {
+          microphone.stop();
+        }
+        microphone.stream.getTracks().forEach(track => track.stop());
+      }
+    };
   }, [microphone]);
 
   return (

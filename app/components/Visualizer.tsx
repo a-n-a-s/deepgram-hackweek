@@ -50,22 +50,49 @@ const Visualizer = ({ microphone }: { microphone: MediaRecorder }) => {
 
     context.clearRect(0, 0, width, height);
 
-    const barWidth = 10;
-    let x = 0;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const maxRadius = Math.min(width, height) * 0.4;
     const startColor = [19, 239, 147];
     const endColor = [20, 154, 251];
 
-    for (const value of dataArray) {
-      const barHeight = (value / 255) * height * 2;
-
+    // Draw circular visualization
+    const bars = 180; // Number of bars in the circle
+    const step = Math.PI * 2 / bars;
+    
+    for (let i = 0; i < bars; i++) {
+      const value = dataArray[i % dataArray.length];
+      const radius = maxRadius * (value / 255) + 10; // Add minimum radius
+      
       const interpolationFactor = value / 255;
-
       const color = interpolateColor(startColor, endColor, interpolationFactor);
-
-      context.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.1)`;
-      context.fillRect(x, height - barHeight, barWidth, barHeight);
-      x += barWidth;
+      
+      const angle = step * i;
+      const x1 = centerX + Math.cos(angle) * 10;
+      const y1 = centerY + Math.sin(angle) * 10;
+      const x2 = centerX + Math.cos(angle) * radius;
+      const y2 = centerY + Math.sin(angle) * radius;
+      
+      // Draw a line from center to outer point
+      context.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.8)`;
+      context.lineWidth = 2;
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.stroke();
+      
+      // Draw a circle at the end point
+      context.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.8)`;
+      context.beginPath();
+      context.arc(x2, y2, 2, 0, Math.PI * 2);
+      context.fill();
     }
+    
+    // Optional: Add a center circle
+    context.fillStyle = "rgba(20, 154, 251, 0.2)";
+    context.beginPath();
+    context.arc(centerX, centerY, 10, 0, Math.PI * 2);
+    context.fill();
   };
 
   return <canvas ref={canvasRef} width={window.innerWidth}></canvas>;

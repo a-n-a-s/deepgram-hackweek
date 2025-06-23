@@ -40,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-dvh">
       <body
-        className={`h-full dark ${classNames(
+        className={`h-full dark p-4 ${classNames(
           favorit.variable,
           inter.className
         )}`}
